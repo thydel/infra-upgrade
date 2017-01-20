@@ -4,6 +4,7 @@ version := 0.1.0
 comment := Initializes for ansible
 comment := Works on README
 comment := Adds apt-hold.yml and apt-upgrade.yml
+comment := Makes apt-upgrade.yml work on ansible-2.2
 
 main:;
 	@echo git log --oneline -n 5

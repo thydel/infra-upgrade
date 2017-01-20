@@ -1,3 +1,4 @@
+#!/usr/bin/env ansible-playbook
 ---
 
 - hosts: all
@@ -11,14 +12,14 @@
 
     - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
       register: aptitude
-      always_run: yes
+      check_mode: no
       changed_when: no
       name: see if some upgrades pending
 
     - set_fact:
         upgrade_state: need_upgrade
       when: aptitude.stdout
-      always_run: yes
+      check_mode: no
 
     - local_action: group_by key={{ upgrade_state }}
       run_once:
@@ -36,7 +37,7 @@
     opt: &opt { com: "{{ com | default('no') }}" }
 
     hg:
-      user: |
+      user: |-
         {{ user | default('tde') }}
       users:
         tde: Thierry Delamare <t.delamare@epiconcept.fr>
@@ -70,7 +71,7 @@
     - &status
       command: hg --cwd /etc st
       register: hg_st
-      always_run: yes
+      check_mode: no
       changed_when: no
       when: opt.com|bool
 
@@ -81,14 +82,14 @@
 
     - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
       register: aptitude
-      always_run: yes
+      check_mode: no
       changed_when: no
       tags: changes
       name: register packages version before and after upgrade
 
     - command: date +%F
       register: date
-      always_run: yes
+      check_mode: no
       changed_when: no
       when: aptitude.stdout
       tags: changes
@@ -112,7 +113,11 @@
       tags: changes
       name: ensure base dir exist
 
-    - template: src=file.j2 dest={{ file.dir }}/{{ file.name }}{{ suffix|default('') }}
+    - copy:
+        content: |
+          '{{ file.content }}'
+        dest: |-
+          {{ file.dir }}/{{ file.name }}{{ suffix|default('') }}
       when: file.content
       tags: changes
       name: create file to keep packages version before and after this upgrade
@@ -122,7 +127,7 @@
     - apt:
         update_cache: yes
         cache_valid_time: 600
-      always_run: True
+      check_mode: no
 
     - apt:
         update_cache=yes
@@ -131,31 +136,31 @@
       register: apt
 
     - set_fact:
-        installed: |
+        installed: |-
           {{
                apt.stdout_lines
              | difference(full.lines)
              | join('/')
-             | regex_replace('.*' + full.install_p + '/(.+)/' + full.installed_p + '.*', '\\1')
-             | regex_replace('(.+)' + full.installed_p + '.*', '\\1')
+             | regex_replace('.*' + full.install_p + '/(.+)/' + full.installed_p + '.*', '\1')
+             | regex_replace('(.+)' + full.installed_p + '.*', '\1')
              | replace('/', ' ') | regex_replace(' +', ' ')
              | trim
           }}
-        removed: |
+        removed: |-
           {{
                apt.stdout_lines
              | difference(full.lines)
              | join('/')
-             | regex_replace('.*' + full.remove_p + '/(.+)/' + full.removed_p + '.*', '\\1')
+             | regex_replace('.*' + full.remove_p + '/(.+)/' + full.removed_p + '.*', '\1')
              | replace('/', ' ') | regex_replace(' +', ' ')
              | trim
           }}
-        upgraded: |
+        upgraded: |-
           {{
                apt.stdout_lines
              | difference(full.lines)
              | join('/')
-             | regex_replace('.*' + full.upgrade_p + '/(.+)/' + full.upgraded_p + '.*', '\\1')
+             | regex_replace('.*' + full.upgrade_p + '/(.+)/' + full.upgraded_p + '.*', '\1')
              | replace('/', ' ') | regex_replace(' +', ' ')
              | trim
           }}
@@ -179,8 +184,8 @@
   gather_facts: False
 
   vars:
-    cwd: |
-      --cwd ~/usr/{{ etc_hg_keeper }}/{{ inventory_hostname }}/etc
+    cwd: |-
+      --cwd ~/usr/etc-hg-keeper/{{ inventory_hostname }}/etc
     opt: *opt
       
   tasks:
@@ -206,7 +211,7 @@
     - name: pull on local from proxy
       delegate_to: localhost
       register: pull
-      always_run: True
+      check_mode: no
       changed_when: pull.stdout.find('no changes found') == -1
       when: opt.com|bool
       command: hg {{ cwd }} pull
