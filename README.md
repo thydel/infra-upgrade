@@ -1,6 +1,12 @@
 # infra-upgrade
 
-Upgrade debian while taking care of holding local packages
+- Upgrade all of our debians nodes while taking care of holding local
+  packages
+- Commit changes to `/etc` before upgrading if needed
+- Keep a list of upgraded packages with pre and post version in `/etc/upgraded/$DATE`
+- Commit changes to `/etc` after upgrading if needed
+
+# Basic setup for ansible and local private data
 
 - Basic setup was made using [init-play-dir.yml](init-play-dir.yml)
 

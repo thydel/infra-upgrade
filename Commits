@@ -2,6 +2,7 @@
 
 version := 0.1.0
 comment := Initializes for ansible
+comment := Works on README
 
 main:;
 	@echo git status
