@@ -1,1 +1,21 @@
 *~
+
+.cache/
+.retry/
+.hide/
+
+roles/
+log/
+tmp/
+ext/
+site/
+
+README.html
+plugins/filter/*.pyc
+
+# generated
+ansible.cfg
+ssh-config
+vars/ext/
+inventory/*.ext
+inventory/group_vars/*/*-ext.yml
