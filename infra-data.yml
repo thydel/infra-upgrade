@@ -8,7 +8,7 @@
   vars: &vars
 
     data_dir:     ext/data
-    data_version: v0.10.1
+    data_version: v0.11.0
     data:         '{{ data_dir}}/{{ data_version }}/templates.out'
     local:        '{{ ansible_hostname }}'
     user:         '{{ ansible_user_id }}'
@@ -46,6 +46,7 @@
         - local
         - networks
         - static_groups
+        - poweroff
         - ansible_become_pass_{{ user }}
 
     - copy:

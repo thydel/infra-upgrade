@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+SHELL := bash
+
 version := 0.1.0
 comment := Initializes for ansible
 comment := Works on README
@@ -8,16 +10,22 @@ comment := Makes apt-upgrade.yml work on ansible-2.2
 comment := Adds a cache-setup.yml helper
 comment := Uses a better host pattern for apt-hold
 
+comment := Adds apt-hold usage in README.
+comment += Changes infra-data to use poweroff group.
+comment += Adds an pandoc helper Makefile
+
+commit := $(shell echo $(comment) | tr . '\n' | xargs -i echo -m \"\'{}\'\" | tr '\n' ' ')
+
 main:;
 	@echo git log --oneline -n 5
 	@echo git add -n .
 	@echo
-	@echo git tag -a v$(version) -m "'$(comment)'"
+	@echo git tag -a v$(version) $(commit)
 	@echo git push --follow-tags
 	@echo
 	@echo git status
 	@echo git add .
-	@echo git commit -m "'$(comment)'"
+	@echo git commit $(commit)
 
 .PHONY: main
 

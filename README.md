@@ -36,3 +36,21 @@ curl -s $gist/$user/$gistid/raw > $file; chmod +x $file;
 - Run `infra-data.yml` to populate `inventory`, `ssh-config` and `var/ext`
 
 - Run `ansible-galaxy install -r requirements.yml` to get required *roles*
+
+# Usage
+
+## First, hold local packages
+
+```bash
+apt-hold.yml -l $pattern -C
+apt-hold.yml -e notfoundok=True -e show=True -l $pattern
+```
+
+- The default search expression for packages to put on hold is
+  `?and(?maintainer(epiconcept), ?installed)`
+- When option `notfoundok` is `True` it is not an error for the search
+  result list to be empty
+- Option `show` gives a list of currently held packages, a list of
+  found packages matching search expression and the difference between
+  held and found
+
