@@ -1,7 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 
-- hosts: all
+- hosts: '!poweroff'
+  gather_facts: True
+  tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
+
+- hosts: debian-jessie:debian-precise:debian-trusty
   gather_facts: False
   become: True
 
@@ -28,7 +32,7 @@
         notfoundok: '{{ notfoundok | default(False) }}'
       
     - debug: { var: apt_hold }
-      when: show | default(False) and apt_hold.diff is defined
+      when: show | default(False) | bool and apt_hold.diff is defined
 
     - debug: { var: apt_hold.diff }
-      when: not show | default(False) and apt_hold.diff is defined
+      when: not show | default(False) | bool and apt_hold.diff is defined

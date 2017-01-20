@@ -5,6 +5,8 @@ comment := Initializes for ansible
 comment := Works on README
 comment := Adds apt-hold.yml and apt-upgrade.yml
 comment := Makes apt-upgrade.yml work on ansible-2.2
+comment := Adds a cache-setup.yml helper
+comment := Uses a better host pattern for apt-hold
 
 main:;
 	@echo git log --oneline -n 5
