@@ -3,16 +3,18 @@
 version := 0.1.0
 comment := Initializes for ansible
 comment := Works on README
+comment := Adds apt-hold.yml and apt-upgrade.yml
 
 main:;
-	@echo git status
-	@echo git add -n .
-	@echo git add .
 	@echo git log --oneline -n 5
-	@echo git commit -m "'$(comment)'"
+	@echo git add -n .
 	@echo
 	@echo git tag -a v$(version) -m "'$(comment)'"
 	@echo git push --follow-tags
+	@echo
+	@echo git status
+	@echo git add .
+	@echo git commit -m "'$(comment)'"
 
 .PHONY: main
 

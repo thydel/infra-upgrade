@@ -1,0 +1,34 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- hosts: all
+  gather_facts: False
+  become: True
+
+  vars:
+
+    hold_search:
+      epi:
+        - &epi ?and(?maintainer(epiconcept), ?installed)
+      percona: 
+        - &percona ~i^percona-xtrabackup$
+      default_to:
+        - *epi
+      all:
+        - *epi
+        - *percona
+
+  roles: [ { role: apt-hold } ]
+    
+  tasks:
+
+    - apt_hold:
+        hold: '{{ hold | default(True) }}'
+        search: '{{ search | default(hold_search.default_to) }}'
+        notfoundok: '{{ notfoundok | default(False) }}'
+      
+    - debug: { var: apt_hold }
+      when: show | default(False) and apt_hold.diff is defined
+
+    - debug: { var: apt_hold.diff }
+      when: not show | default(False) and apt_hold.diff is defined

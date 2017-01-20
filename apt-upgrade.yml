@@ -1,0 +1,222 @@
+---
+
+- hosts: all
+  gather_facts: False
+  name: Make a group from nodes that need an upgrade
+
+  vars:
+    upgrade_state: dont_need_upgrade
+
+  tasks:
+
+    - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
+      register: aptitude
+      always_run: yes
+      changed_when: no
+      name: see if some upgrades pending
+
+    - set_fact:
+        upgrade_state: need_upgrade
+      when: aptitude.stdout
+      always_run: yes
+
+    - local_action: group_by key={{ upgrade_state }}
+      run_once:
+      changed_when: no
+      name: group by need upgrade state
+
+- hosts: need_upgrade
+  gather_facts: False
+  user: root
+
+  name: Upgrade packages, keep list of changes, commit changes if *com* is true, verbose if *show* is true
+
+  vars:
+
+    opt: &opt { com: "{{ com | default('no') }}" }
+
+    hg:
+      user: |
+        {{ user | default('tde') }}
+      users:
+        tde: Thierry Delamare <t.delamare@epiconcept.fr>
+        cgd: Cédric Girard <c.girard@epiconcept.fr>
+      comments:
+        before: before upgrade
+        after: after upgrade
+
+    full:
+      lines:
+        - "Reading package lists..."
+        - "Building dependency tree..."
+        - "Reading state information..."
+        - "Reading extended state information..."
+        - "Initializing package states..."
+        - "Reading task descriptions..."
+      marks:
+        installed: &install 'The following NEW packages will be installed:'
+        removed: &remove 'The following packages will be REMOVED:'
+        upgraded: &upgrade 'The following packages will be upgraded:'
+      install_p: *install
+      # installed_p: *remove
+      installed_p: 'The following packages will be'
+      remove_p: *remove
+      removed_p: *upgrade
+      upgrade_p: *upgrade
+      upgraded_p: '[0-9]+ packages upgraded'
+
+  tasks:
+
+    - &status
+      command: hg --cwd /etc st
+      register: hg_st
+      always_run: yes
+      changed_when: no
+      when: opt.com|bool
+
+    - command: hg --cwd /etc com -u '{{ hg.users[hg.user] }}' -A -m '{{ hg.comments.before }}'
+      when: opt.com|bool and hg_st.stdout
+
+    ####
+
+    - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
+      register: aptitude
+      always_run: yes
+      changed_when: no
+      tags: changes
+      name: register packages version before and after upgrade
+
+    - command: date +%F
+      register: date
+      always_run: yes
+      changed_when: no
+      when: aptitude.stdout
+      tags: changes
+      name: get date if any packages need upgrade
+
+    - set_fact:
+        file:
+          dir: /etc/upgraded
+          name: "{{ date.stdout if aptitude.stdout else '' }}"
+          content: "{{ aptitude.stdout }}"
+      tags: changes
+      name: set variables for file dir name and content
+
+    - debug: var=file
+      when: show|default(False)|bool and file.content
+      tags: changes
+      name: show file variable if any packages need upgrade and show is true
+
+    - file: path={{ file.dir }} state=directory
+      when: file.content
+      tags: changes
+      name: ensure base dir exist
+
+    - template: src=file.j2 dest={{ file.dir }}/{{ file.name }}{{ suffix|default('') }}
+      when: file.content
+      tags: changes
+      name: create file to keep packages version before and after this upgrade
+
+    ####
+
+    - apt:
+        update_cache: yes
+        cache_valid_time: 600
+      always_run: True
+
+    - apt:
+        update_cache=yes
+        cache_valid_time=600
+        upgrade=full
+      register: apt
+
+    - set_fact:
+        installed: |
+          {{
+               apt.stdout_lines
+             | difference(full.lines)
+             | join('/')
+             | regex_replace('.*' + full.install_p + '/(.+)/' + full.installed_p + '.*', '\\1')
+             | regex_replace('(.+)' + full.installed_p + '.*', '\\1')
+             | replace('/', ' ') | regex_replace(' +', ' ')
+             | trim
+          }}
+        removed: |
+          {{
+               apt.stdout_lines
+             | difference(full.lines)
+             | join('/')
+             | regex_replace('.*' + full.remove_p + '/(.+)/' + full.removed_p + '.*', '\\1')
+             | replace('/', ' ') | regex_replace(' +', ' ')
+             | trim
+          }}
+        upgraded: |
+          {{
+               apt.stdout_lines
+             | difference(full.lines)
+             | join('/')
+             | regex_replace('.*' + full.upgrade_p + '/(.+)/' + full.upgraded_p + '.*', '\\1')
+             | replace('/', ' ') | regex_replace(' +', ' ')
+             | trim
+          }}
+        when: apt.changed
+          
+    - debug: var=apt.stdout_lines
+      when: show|default(False)|bool and apt.changed
+
+    - debug: var={{ item }}
+      with_items: [ installed, removed, upgraded ]
+      when: apt.changed and apt.stdout.find(full.marks[item]) != -1
+
+    ####
+
+    - *status
+
+    - command: hg --cwd /etc com -u '{{ hg.users[hg.user] }}' -A -m '{{ hg.comments.after }}'
+      when: opt.com|bool and hg_st.stdout
+
+- hosts: need_upgrade
+  gather_facts: False
+
+  vars:
+    cwd: |
+      --cwd ~/usr/{{ etc_hg_keeper }}/{{ inventory_hostname }}/etc
+    opt: *opt
+      
+  tasks:
+    
+    - name: push on remote to proxy
+      delegate_to: localhost
+      register: push
+      failed_when: push.rc > 1
+      changed_when: False
+      when: opt.com|bool
+      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc push
+
+    - name: get id
+      delegate_to: localhost
+      register: id
+      when: opt.com|bool and push.rc == 0
+      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc id | awk '{print$1}'
+
+    - name: print id
+      when: opt.com|bool and push.rc == 0
+      debug: { var: id.stdout }
+
+    - name: pull on local from proxy
+      delegate_to: localhost
+      register: pull
+      always_run: True
+      changed_when: pull.stdout.find('no changes found') == -1
+      when: opt.com|bool
+      command: hg {{ cwd }} pull
+    
+    - name: update local
+      delegate_to: localhost
+      when: opt.com|bool and pull.changed
+      command: hg {{ cwd }} update
+      
+    - name: push on local to hgweb
+      delegate_to: localhost
+      when: opt.com|bool and pull.changed and site is defined and site != 'charenton'
+      command: hg {{ cwd }} push hgweb
