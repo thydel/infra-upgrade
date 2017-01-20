@@ -54,3 +54,9 @@ apt-hold.yml -e notfoundok=True -e show=True -l $pattern
   found packages matching search expression and the difference between
   held and found
 
+## Then upgrade
+
+```bash
+apt-upgrade.yml -l $pattern -e show=True -DC
+apt-upgrade.yml -l $pattern -e show=True -e com=True -D
+```
