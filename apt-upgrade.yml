@@ -1,7 +1,11 @@
 #!/usr/bin/env ansible-playbook
 ---
 
-- hosts: all
+- hosts: '!poweroff'
+  gather_facts: True
+  tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
+
+- hosts: debian-jessie:debian-precise:debian-trusty
   gather_facts: False
   name: Make a group from nodes that need an upgrade
 
@@ -10,10 +14,16 @@
 
   tasks:
 
+    - apt:
+        update_cache: yes
+        cache_valid_time: 600
+      become: True
+
     - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
       register: aptitude
       check_mode: no
       changed_when: no
+      become: True
       name: see if some upgrades pending
 
     - set_fact:
@@ -28,13 +38,13 @@
 
 - hosts: need_upgrade
   gather_facts: False
-  user: root
+  become: true
 
   name: Upgrade packages, keep list of changes, commit changes if *com* is true, verbose if *show* is true
 
   vars:
 
-    opt: &opt { com: "{{ com | default('no') }}" }
+    opt: &opt { com: '{{ com | default(False) }}' }
 
     hg:
       user: |-
@@ -127,13 +137,95 @@
     - apt:
         update_cache: yes
         cache_valid_time: 600
+      always_run: True
+
+    - command: mount
+      register: mount
       check_mode: no
+      changed_when: no
+      name: register mounted file systems
+
+    - command: dpkg-query -Wf '${db:Status-Status}\n' mysql-server
+      register: mysql
+      check_mode: no
+      changed_when: no
+      failed_when: no
+      name: see if mysql-server is installed
+
+    - set_fact:
+        mysql_service: False
+        apache_service: False
+        docker_service: False
+        space_path: /dev/mapper/space
+        installed_str: installed
+          
+    - set_fact:
+        mysql_service: True
+      when: space_path in mount.stdout and mysql.stdout == installed_str
+
+    - service:
+        name: mysql
+        enabled: True
+      when: mysql_service
+      name: enable mysql at boot to ensure upgrade will restart it
+
+    - command: dpkg-query -Wf '${db:Status-Status}\n' apache2
+      register: apache
+      check_mode: no
+      changed_when: no
+      failed_when: no
+      name: see if apache2 is installed
+
+    - set_fact:
+        apache_service: True
+      when: space_path in mount.stdout and apache.stdout == installed_str
+
+    - service:
+        name: apache2
+        enabled: True
+      when: apache_service
+      name: enable apache at boot to ensure upgrade will restart it
+
+    - command: dpkg-query -Wf '${db:Status-Status}\n' docker-engine
+      register: docker
+      check_mode: no
+      changed_when: no
+      failed_when: no
+      name: see if docker is installed
+
+    - set_fact:
+        docker_service: True
+      when: space_path in mount.stdout and docker.stdout == installed_str
+
+    - service:
+        name: docker
+        enabled: True
+      when: docker_service
+      name: enable docker at boot to ensure upgrade will restart it
 
     - apt:
-        update_cache=yes
-        cache_valid_time=600
-        upgrade=full
+        update_cache: yes
+        cache_valid_time: 600
+        upgrade: full
       register: apt
+
+    - service:
+        name: mysql
+        enabled: False
+      when: mysql_service
+      name: disable mysql at boot again
+
+    - service:
+        name: apache2
+        enabled: False
+      when: apache_service
+      name: disable apache at boot again
+
+    - service:
+        name: docker
+        enabled: False
+      when: docker_service
+      name: disable docker at boot again
 
     - set_fact:
         installed: |-
@@ -196,13 +288,13 @@
       failed_when: push.rc > 1
       changed_when: False
       when: opt.com|bool
-      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc push
+      command: ssh -A {{ ansible_host|default(inventory_hostname) }} -l root hg --cwd /etc push
 
     - name: get id
       delegate_to: localhost
       register: id
       when: opt.com|bool and push.rc == 0
-      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc id | awk '{print$1}'
+      command: ssh -A {{ ansible_host|default(inventory_hostname) }} -l root hg --cwd /etc id | awk '{print$1}'
 
     - name: print id
       when: opt.com|bool and push.rc == 0
@@ -223,5 +315,5 @@
       
     - name: push on local to hgweb
       delegate_to: localhost
-      when: opt.com|bool and pull.changed and site is defined and site != 'charenton'
+      when: opt.com|bool and pull.changed
       command: hg {{ cwd }} push hgweb

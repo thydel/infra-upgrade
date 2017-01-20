@@ -10,11 +10,15 @@ comment := Makes apt-upgrade.yml work on ansible-2.2
 comment := Adds a cache-setup.yml helper
 comment := Uses a better host pattern for apt-hold
 
-comment := Adds apt-hold usage in README.
-comment += Changes infra-data to use poweroff group.
+comment := Adds apt-hold usage in README;
+comment += Changes infra-data to use poweroff group;
 comment += Adds an pandoc helper Makefile
 
-commit := $(shell echo $(comment) | tr . '\n' | xargs -i echo -m \"\'{}\'\" | tr '\n' ' ')
+comment := Changes apt-upgrade.yml;
+comment += We failed to choose the latest version at first. Restart from latest
+comment += +version and reapply changes for ansible-2.2
+
+commit := $(shell echo -e "$(comment)" | tr ';' '\n' | xargs -i echo -m \"\$$\'{}\'\" | tr '\n' ' ' | sed -e 's/+/\\n/g')
 
 main:;
 	@echo git log --oneline -n 5
