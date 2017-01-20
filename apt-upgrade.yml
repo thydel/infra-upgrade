@@ -125,7 +125,7 @@
 
     - copy:
         content: |
-          '{{ file.content }}'
+          {{ file.content }}
         dest: |-
           {{ file.dir }}/{{ file.name }}{{ suffix|default('') }}
       when: file.content
@@ -137,7 +137,7 @@
     - apt:
         update_cache: yes
         cache_valid_time: 600
-      always_run: True
+      check_mode: no
 
     - command: mount
       register: mount
@@ -288,13 +288,13 @@
       failed_when: push.rc > 1
       changed_when: False
       when: opt.com|bool
-      command: ssh -A {{ ansible_host|default(inventory_hostname) }} -l root hg --cwd /etc push
+      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc push
 
     - name: get id
       delegate_to: localhost
       register: id
       when: opt.com|bool and push.rc == 0
-      command: ssh -A {{ ansible_host|default(inventory_hostname) }} -l root hg --cwd /etc id | awk '{print$1}'
+      command: ssh -A {{ ansible_ssh_host|default(inventory_hostname) }} -l root hg --cwd /etc id | awk '{print$1}'
 
     - name: print id
       when: opt.com|bool and push.rc == 0

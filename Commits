@@ -2,7 +2,6 @@
 
 SHELL := bash
 
-version := 0.1.0
 comment := Initializes for ansible
 comment := Works on README
 comment := Adds apt-hold.yml and apt-upgrade.yml
@@ -17,6 +16,9 @@ comment += Adds an pandoc helper Makefile
 comment := Changes apt-upgrade.yml;
 comment += We failed to choose the latest version at first. Restart from latest
 comment += +version and reapply changes for ansible-2.2
+
+version := 0.1.0
+comment := Makes corrections to apt-upgrade.yml
 
 commit := $(shell echo -e "$(comment)" | tr ';' '\n' | xargs -i echo -m \"\$$\'{}\'\" | tr '\n' ' ' | sed -e 's/+/\\n/g')
 
