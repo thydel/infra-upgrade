@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+version := v0.2.0
+comment := Adds CHANGELOG.md
+
+main:;
+	@echo git status
+	@echo git add -n .
+	@echo git add .
+	@echo git log --oneline -n 5
+	@echo git commit -m "'$(comment)'"
+	@echo git tag -a v$(version) -m "'$(comment)'"
+	@echo git push --follow-tags
+
+.PHONY: main
+
+# Local Variables:
+# Mode: makefile-gmake
+# End:

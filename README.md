@@ -6,6 +6,10 @@
 - Keep a list of upgraded packages with pre and post version in `/etc/upgraded/$DATE`
 - Commit changes to `/etc` after upgrading if needed
 
+See [CHANGELOG][]
+
+[CHANGELOG]: CHANGELOG.md
+
 # Basic setup for ansible and local private data
 
 - Basic setup was made using [init-play-dir.yml](init-play-dir.yml)
