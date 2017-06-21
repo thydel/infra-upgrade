@@ -6,7 +6,7 @@
   tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
   tags: always
 
-- hosts: debian-jessie:debian-precise:debian-trusty
+- hosts: debian-jessie:debian-wheezy:debian-precise:debian-trusty
   gather_facts: False
   become: True
   tags: epi
