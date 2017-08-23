@@ -47,6 +47,7 @@ curl -s $gist/$user/$gistid/raw > $file; chmod +x $file;
 
 ```bash
 apt-hold.yml -l "$pattern" -C
+apt-hold.yml -e notfoundok=True -l "$pattern" -C
 apt-hold.yml -e notfoundok=True -e show=True -l "$pattern"
 ```
 
