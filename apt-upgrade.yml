@@ -165,9 +165,10 @@
         mysql_service: True
       when: space_path in mount.stdout and mysql.stdout == installed_str
 
-    - service:
-        name: mysql
-        enabled: True
+      #- service:
+      #name: mysql
+      #enabled: True
+    - command: systemctl enable mysql
       when: mysql_service
       name: enable mysql at boot to ensure upgrade will restart it
 
@@ -182,9 +183,10 @@
         apache_service: True
       when: space_path in mount.stdout and apache.stdout == installed_str
 
-    - service:
-        name: apache2
-        enabled: True
+      #- service:
+      #name: apache2
+      #enabled: True
+    - command: systemctl enable apache2            
       when: apache_service
       name: enable apache at boot to ensure upgrade will restart it
 
@@ -199,9 +201,10 @@
         docker_service: True
       when: space_path in mount.stdout and docker.stdout == installed_str
 
-    - service:
-        name: docker
-        enabled: True
+      #- service:
+      #name: docker
+      #enabled: True
+    - command: systemctl enable docker
       when: docker_service
       name: enable docker at boot to ensure upgrade will restart it
 
@@ -211,21 +214,24 @@
         upgrade: full
       register: apt
 
-    - service:
-        name: mysql
-        enabled: False
+      #- service:
+      #name: mysql
+      #enabled: False
+    - command: systemctl disable mysql
       when: mysql_service
       name: disable mysql at boot again
 
-    - service:
-        name: apache2
-        enabled: False
+      #- service:
+      #name: apache2
+      #enabled: False
+    - command: systemctl disable apache2
       when: apache_service
       name: disable apache at boot again
 
-    - service:
-        name: docker
-        enabled: False
+      #- service:
+      #name: docker
+      #enabled: False
+    - command: systemctl disable docker     
       when: docker_service
       name: disable docker at boot again
 
@@ -319,3 +325,4 @@
       delegate_to: localhost
       when: opt.com|bool and pull.changed
       command: hg {{ cwd }} push hgweb
+...
