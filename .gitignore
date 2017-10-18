@@ -1,4 +1,6 @@
 *~
+.stone
+.mailmap
 
 .cache/
 .retry/
@@ -19,3 +21,5 @@ ssh-config
 vars/ext/
 inventory/*.ext
 inventory/group_vars/*/*-ext.yml
+inventory/*.tmp
+inventory/upgrade

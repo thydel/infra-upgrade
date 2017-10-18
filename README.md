@@ -6,6 +6,10 @@
 - Keep a list of upgraded packages with pre and post version in `/etc/upgraded/$DATE`
 - Commit changes to `/etc` after upgrading if needed
 
+See [CHANGELOG][]
+
+[CHANGELOG]: CHANGELOG.md
+
 # Basic setup for ansible and local private data
 
 - Basic setup was made using [init-play-dir.yml](init-play-dir.yml)
@@ -42,8 +46,9 @@ curl -s $gist/$user/$gistid/raw > $file; chmod +x $file;
 ## First, hold local packages
 
 ```bash
-apt-hold.yml -l $pattern -C
-apt-hold.yml -e notfoundok=True -e show=True -l $pattern
+apt-hold.yml -l "$pattern" -C
+apt-hold.yml -e notfoundok=True -l "$pattern" -C
+apt-hold.yml -e notfoundok=True -e show=True -l "$pattern"
 ```
 
 - The default search expression for packages to put on hold is
@@ -57,6 +62,6 @@ apt-hold.yml -e notfoundok=True -e show=True -l $pattern
 ## Then upgrade
 
 ```bash
-apt-upgrade.yml -l $pattern -e show=True -DC
-apt-upgrade.yml -l $pattern -e show=True -e com=True -D
+apt-upgrade.yml -l "$pattern" -e show=True -DC
+apt-upgrade.yml -l "$pattern" -e show=True -e com=True -D
 ```

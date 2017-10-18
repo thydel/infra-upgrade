@@ -8,7 +8,8 @@
   vars: &vars
 
     data_dir:     ext/data
-    data_version: v0.50.0
+    data_version: v0.53.0
+
     data:         '{{ data_dir}}/{{ data_version }}/templates.out'
     local:        '{{ ansible_hostname }}'
     user:         '{{ ansible_user_id }}'
@@ -19,7 +20,7 @@
         repo: git@github.com:Epiconcept-Paris/infra-data.git
         version: '{{ data_version }}'
         dest: '{{ data_dir}}/{{ data_version }}'
-        key_file: ~/id_epiconcept
+        key_file: ~/.ssh/keys/id_epiconcept
       tags: git
       name: get infra-data
 

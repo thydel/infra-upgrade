@@ -5,7 +5,7 @@
   gather_facts: True
   tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
 
-- hosts: debian-jessie:debian-precise:debian-trusty
+- hosts: debian-stretch:debian-jessie:debian-wheezy:debian-precise:debian-trusty
   gather_facts: False
   name: Make a group from nodes that need an upgrade
 
@@ -23,6 +23,7 @@
       register: aptitude
       check_mode: no
       changed_when: no
+      failed_when: aptitude.rc == -1
       become: True
       name: see if some upgrades pending
 
@@ -94,6 +95,7 @@
       register: aptitude
       check_mode: no
       changed_when: no
+      failed_when: aptitude.rc == -1
       tags: changes
       name: register packages version before and after upgrade
 
