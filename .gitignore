@@ -23,3 +23,12 @@ inventory/*.ext
 inventory/group_vars/*/*-ext.yml
 inventory/*.tmp
 inventory/upgrade
+.cache
+.retry
+.hide
+roles
+log
+tmp
+ext
+vault-pass.py
+inventory/local
