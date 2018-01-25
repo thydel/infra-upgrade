@@ -8,7 +8,7 @@
   vars: &vars
 
     data_dir:     ext/data
-    data_version: v0.53.0
+    data_version: v0.67.2
 
     data:         '{{ data_dir}}/{{ data_version }}/templates.out'
     local:        '{{ ansible_hostname }}'
@@ -16,11 +16,20 @@
 
   tasks:
 
+    - set_fact:
+        keys:
+          - id_epiconcept
+          - t.delamare@epiconcept.fr
+    - set_fact:
+        git_ssh_key_file: |-
+          {{ lookup('env', 'GIT_SSH_KEY_FILE') | default('~/.ssh/' ~ keys[1], True) }}
+
     - git:
         repo: git@github.com:Epiconcept-Paris/infra-data.git
         version: '{{ data_version }}'
         dest: '{{ data_dir}}/{{ data_version }}'
-        key_file: ~/.ssh/keys/id_epiconcept
+        key_file: '{{ git_ssh_key_file }}'
+      when: data_version != 'debug'
       tags: git
       name: get infra-data
 
