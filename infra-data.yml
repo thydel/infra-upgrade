@@ -8,7 +8,7 @@
   vars: &vars
 
     data_dir:     ext/data
-    data_version: v0.68.1
+    data_version: v0.72.0
 
     data:         '{{ data_dir}}/{{ data_version }}/templates.out'
     local:        '{{ ansible_hostname }}'
