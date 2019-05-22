@@ -3,9 +3,9 @@
 
 - hosts: '!poweroff'
   gather_facts: True
-  tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
+  tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
 
-- hosts: debian-stretch:debian-jessie:debian-wheezy:debian-precise:debian-trusty
+- hosts: debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
   gather_facts: False
   name: Make a group from nodes that need an upgrade
 
@@ -169,7 +169,7 @@
       #name: mysql
       #enabled: True
     - command: systemctl enable mysql
-      when: mysql_service
+      when: mysql_service == True
       name: enable mysql at boot to ensure upgrade will restart it
 
     - command: dpkg-query -Wf '${db:Status-Status}\n' apache2
@@ -187,7 +187,7 @@
       #name: apache2
       #enabled: True
     - command: systemctl enable apache2            
-      when: apache_service
+      when: apache_service == True
       name: enable apache at boot to ensure upgrade will restart it
 
     - command: dpkg-query -Wf '${db:Status-Status}\n' docker-engine
@@ -205,7 +205,7 @@
       #name: docker
       #enabled: True
     - command: systemctl enable docker
-      when: docker_service
+      when: docker_service == True
       name: enable docker at boot to ensure upgrade will restart it
 
     - command: systemctl enable cron
@@ -221,21 +221,21 @@
       #name: mysql
       #enabled: False
     - command: systemctl disable mysql
-      when: mysql_service
+      when: mysql_service == True
       name: disable mysql at boot again
 
       #- service:
       #name: apache2
       #enabled: False
     - command: systemctl disable apache2
-      when: apache_service
+      when: apache_service == True
       name: disable apache at boot again
 
       #- service:
       #name: docker
       #enabled: False
     - command: systemctl disable docker     
-      when: docker_service
+      when: docker_service == True
       name: disable docker at boot again
 
     - command: systemctl disable cron
