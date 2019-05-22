@@ -3,10 +3,10 @@
 
 - hosts: '!poweroff'
   gather_facts: True
-  tasks: [ group_by: { key: 'debian-{{ ansible_distribution_release }}' } ]
+  tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
   tags: always
 
-- hosts: debian-stretch:debian-jessie:debian-wheezy:debian-precise:debian-trusty
+- hosts: debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
   gather_facts: False
   become: True
   tags: epi
@@ -39,7 +39,7 @@
     - debug: { var: apt_hold.diff }
       when: not show | default(False) | bool and apt_hold.diff is defined
 
-- hosts: 'debian-jessie:&g_mysql:!all'
+- hosts: 'debian_jessie:&g_mysql:!all'
   gather_facts: False
   become: True
   tags: percona
