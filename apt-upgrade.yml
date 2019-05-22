@@ -209,6 +209,7 @@
       name: enable docker at boot to ensure upgrade will restart it
 
     - command: systemctl enable cron
+      when: inventory_hostname not in groups.g_ubuntu
       name: enable cron at boot to ensure upgrade will restart it
 
     - apt:
@@ -239,6 +240,7 @@
       name: disable docker at boot again
 
     - command: systemctl disable cron
+      when: inventory_hostname not in groups.g_ubuntu
       name: disable cron at boot again
 
     - set_fact:
