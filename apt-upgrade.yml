@@ -163,7 +163,7 @@
           
     - set_fact:
         mysql_service: True
-      when: space_path in mount.stdout and mysql.stdout == installed_str
+      when: space_path in mount.stdout and mysql.stdout == installed_str and inventory_hostname != 'bgdta1'
 
       #- service:
       #name: mysql
