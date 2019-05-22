@@ -208,6 +208,9 @@
       when: docker_service
       name: enable docker at boot to ensure upgrade will restart it
 
+    - command: systemctl enable cron
+      name: enable cron at boot to ensure upgrade will restart it
+
     - apt:
         update_cache: yes
         cache_valid_time: 600
@@ -234,6 +237,9 @@
     - command: systemctl disable docker     
       when: docker_service
       name: disable docker at boot again
+
+    - command: systemctl disable cron
+      name: disable cron at boot again
 
     - set_fact:
         installed: |-
