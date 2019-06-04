@@ -1,0 +1,8 @@
+---
+
+private_repos_file: private-repos.yml
+keys_file: keys.yml
+
+workdir: ext
+
+inventories: '{{ workdir }}/inventories'
