@@ -32,3 +32,8 @@ tmp
 ext
 vault-pass.py
 inventory/local
+inventory
+plugins
+ansible-cfg
+private-repos.yml
+keys.yml
