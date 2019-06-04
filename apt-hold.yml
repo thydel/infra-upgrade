@@ -1,7 +1,7 @@
 #!/usr/bin/env ansible-playbook
 ---
 
-- hosts: '!poweroff'
+- hosts: '!g_poweredoff'
   gather_facts: True
   tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
   tags: always
