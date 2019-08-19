@@ -29,9 +29,9 @@
   tasks: &tasks
 
     - apt_hold:
-        hold: '{{ hold | default(True) }}'
+        hold: '{{ hold | default(True) | bool }}'
         search: '{{ search | default(hold_search.default_to) }}'
-        notfoundok: '{{ notfoundok | default(False) }}'
+        notfoundok: '{{ notfoundok | default(False) | bool }}'
       
     - debug: { var: apt_hold }
       when: show | default(False) | bool and apt_hold.diff is defined
