@@ -2,6 +2,11 @@
 
 # ansible-galaxy install -r requirements.yml
 
+collections:
+  - ansible.posix
+  - community.general
+
+roles:
 - src: https://github.com/thydel/ar-apt-hold.git
   name: apt-hold
 
