@@ -18,6 +18,10 @@
         - &epi ?and(?maintainer(epiconcept), ?installed)
       percona: 
         - &percona ~i^percona-xtrabackup$
+      apache: &apache ~i^apache2
+      mysql: &mysql ~i^mysql-
+      php: &php ~i^php5-
+      safe: &safe [ *epi, *apache, *mysql, *php ]
       default_to:
         - *epi
       all:
@@ -49,5 +53,17 @@
     hold_search:
       default_to:
         - *percona
+
+  tasks: *tasks
+
+- hosts: debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
+  gather_facts: False
+  become: True
+  tags: safe
+
+  vars:
+
+    hold_search:
+      default_to: *safe
 
   tasks: *tasks
