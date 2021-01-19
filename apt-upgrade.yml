@@ -99,7 +99,7 @@
       tags: changes
       name: register packages version before and after upgrade
 
-    - command: date +%F
+    - command: date +%F-%s
       register: date
       check_mode: no
       changed_when: no
