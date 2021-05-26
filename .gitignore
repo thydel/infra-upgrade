@@ -6,6 +6,7 @@
 .retry/
 .hide/
 
+collections/
 roles/
 log/
 tmp/
