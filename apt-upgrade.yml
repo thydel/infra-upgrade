@@ -5,7 +5,7 @@
   gather_facts: True
   tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
 
-- hosts: debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty:debian_bionic
+- hosts: debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty:debian_bionic
   gather_facts: False
   name: Make a group from nodes that need an upgrade
 
