@@ -6,7 +6,7 @@
   tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
   tags: always
 
-- hosts: debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
+- hosts: debian_bullseye:debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
   gather_facts: False
   become: True
   tags: epi
@@ -56,7 +56,7 @@
 
   tasks: *tasks
 
-- hosts: debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
+- hosts: debian_bullseye:debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty
   gather_facts: False
   become: True
   tags: safe
