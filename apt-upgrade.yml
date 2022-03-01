@@ -5,7 +5,7 @@
   gather_facts: True
   tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
 
-- hosts: debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty:debian_bionic
+- hosts: debian_bullseye:debian_buster:debian_stretch:debian_jessie:debian_wheezy:debian_precise:debian_trusty:debian_bionic
   gather_facts: False
   name: Make a group from nodes that need an upgrade
 
@@ -169,7 +169,7 @@
       #name: mysql
       #enabled: True
     - command: systemctl enable mysql
-      when: mysql_service == True
+      when: mysql_service == True and nomysql is not defined
       name: enable mysql at boot to ensure upgrade will restart it
 
     - command: dpkg-query -Wf '${db:Status-Status}\n' apache2
