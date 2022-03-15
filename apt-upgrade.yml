@@ -18,6 +18,7 @@
         update_cache: yes
         cache_valid_time: 600
       become: True
+      when: noupdate is not defined
 
     - command: aptitude -F %p,%v,%V --disable-columns search '~U!~ahold'
       register: aptitude
@@ -140,6 +141,7 @@
         update_cache: yes
         cache_valid_time: 600
       check_mode: no
+      when: noupdate is not defined
 
     - command: mount
       register: mount
@@ -215,6 +217,9 @@
     - apt:
         update_cache: yes
         cache_valid_time: 600
+      when: noupdate is not defined
+
+    - apt:
         upgrade: full
       register: apt
 
