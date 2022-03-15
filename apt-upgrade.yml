@@ -227,7 +227,7 @@
       #name: mysql
       #enabled: False
     - command: systemctl disable mysql
-      when: mysql_service == True
+      when: mysql_service == True and nomysql is not defined
       name: disable mysql at boot again
 
       #- service:
