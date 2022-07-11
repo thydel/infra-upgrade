@@ -1,0 +1,44 @@
+#!/usr/bin/env ansible-playbook
+---
+
+- hosts: '!g_poweredoff'
+  gather_facts: True
+  tasks: [ group_by: { key: 'debian_{{ ansible_distribution_release }}' } ]
+
+- hosts: debian_stretch
+  gather_facts: False
+  name: Uses Freexian
+
+  vars:
+
+    no_proxy: [ files ]
+
+  tasks:
+
+    - set_fact:
+        proxy: '{{ proxy }}'
+      when: inventory_hostname not in no_proxy
+      vars:
+        proxy: http://proxy.admin2.oxa.tld:3128
+      name: No proxy exception
+
+    - ansible.builtin.get_url:
+        url: '{{ url }}'
+        dest: '{{ dest }}'
+      environment:
+        https_proxy: '{{ proxy | default("") }}'
+      vars:
+        url: https://deb.freexian.com/extended-lts/archive-key.gpg
+        dest: /etc/apt/trusted.gpg.d/freexian-archive-extended-lts.gpg
+      become: True
+      name: Get {{ url }}
+
+    - ansible.builtin.copy:
+        content: '{{ content }}'
+        dest: '{{ dest }}'
+      vars:
+        content: |
+          deb http://deb.freexian.com/extended-lts jessie-lts main contrib non-free
+        dest: /etc/apt/sources.list.d/freexian.list
+      become: True
+      name: Add {{ content }}
