@@ -18,10 +18,12 @@
         - &epi ?and(?maintainer(epiconcept), ?installed)
       percona: 
         - &percona ~i^percona-xtrabackup$
+      haproxy:
+        - &haproxy ~i^haproxy$
       apache: &apache ~i^apache2
       mysql: &mysql ~i^mysql-
       php: &php ~i^php5-
-      safe: &safe [ *epi, *apache, *mysql, *php ]
+      safe: &safe [ *epi, *apache, *mysql, *php, *haproxy ]
       default_to:
         - *epi
       all:
