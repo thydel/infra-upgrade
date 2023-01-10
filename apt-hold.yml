@@ -23,7 +23,7 @@
       apache: &apache ~i^apache2
       mysql: &mysql ~i^mysql-
       php: &php ~i^php5-
-      safe: &safe [ *epi, *apache, *mysql, *php, *haproxy ]
+      safe: &safe [ *epi, *apache, *mysql, *php ]
       default_to:
         - *epi
       all:
